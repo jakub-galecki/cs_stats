@@ -1,0 +1,47 @@
+syntax = "proto3";
+option go_package = "github.com/jakub-galecki/cs_stats/pb";
+package pb;
+
+message ProcessDemoReq {
+    string path = 1;
+    string player = 2;
+}
+
+message KillCounter {
+    int32 count = 1;
+    int32 headshotCount = 2; 
+}
+
+message Flash {
+    int32 enemiesFlashed = 1;
+}
+
+message Position {
+    double x = 1;
+    double y = 2;
+}
+
+message Kill {
+    KillCounter overall = 1;
+    KillCounter terrorists = 2;
+    KillCounter counterTerrorists = 3;
+
+    map<string, KillCounter> weapons = 4;
+    repeated Position killPositions = 5;
+}
+
+message GameStats {
+    map<string, Kill> kills = 1; 
+    map<string, Flash> flashes = 2;
+}
+
+message ProcessDemoResponse {
+    string player = 1;
+    repeated string players = 2;
+    GameStats stats = 3;
+}
+
+service Stats {
+    rpc ProcessDemo(ProcessDemoReq) returns  (ProcessDemoResponse) {}
+}
+
