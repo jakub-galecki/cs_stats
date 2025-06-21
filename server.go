@@ -13,7 +13,8 @@ type Server struct {
 	l     zerolog.Logger
 	stats *stats
 
-	cache map[string]*pb.ProcessDemoResponse
+	useCache bool
+	cache    map[string]*pb.ProcessDemoResponse
 }
 
 func NewServer(stats *stats, l zerolog.Logger) *Server {
@@ -43,12 +44,16 @@ func (s *Server) ProcessDemo(ctx context.Context, req *pb.ProcessDemoReq) (*pb.P
 	if err != nil {
 		return nil, err
 	}
+
 	res := &pb.ProcessDemoResponse{
 		Player:  info.Player,
+		Map:     info.Map,
 		Players: info.Players,
 		Stats:   info.Game.ToProto(),
 	}
-	s.cache[req.Path] = res
+	if s.useCache {
+		s.cache[req.Path] = res
+	}
 	return res, nil
 }
 

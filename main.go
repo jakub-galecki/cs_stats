@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"os"
 
 	"github.com/jakub-galecki/cs_stats/faceit"
@@ -9,11 +10,18 @@ import (
 	"github.com/rs/zerolog"
 )
 
+var (
+	enableCache = flag.Bool("no-cache", false, "enable caching responses")
+)
+
 func main() {
+	flag.Parse()
+
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
 	}
+
 	var (
 		auth = os.Getenv("AUTH")
 		base = os.Getenv("BASE")
@@ -26,6 +34,9 @@ func main() {
 		l:  logger,
 	}
 	s := NewServer(stats, logger)
+	if enableCache != nil && !(*enableCache) {
+		s.useCache = false
+	}
 	if err := s.Run(context.Background()); err != nil {
 		panic(err)
 	}

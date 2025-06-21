@@ -37,8 +37,9 @@ message GameStats {
 
 message ProcessDemoResponse {
     string player = 1;
-    repeated string players = 2;
-    GameStats stats = 3;
+    string map = 2;
+    repeated string players = 3;
+    GameStats stats = 4;
 }
 
 service Stats {

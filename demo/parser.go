@@ -13,6 +13,7 @@ var ZeroDemoInfo = DemoInfo{}
 
 type DemoInfo struct {
 	Player string
+	Map    string
 
 	Players []string
 	Game    GameStats
@@ -68,6 +69,11 @@ func NewParser(path string, opts ...Opt) (*Parser, error) {
 }
 
 func (p *Parser) register() {
+	p.p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
+		p.l.Trace().Str("map", msg.GetMapName()).Msg("received map info")
+		p.info.Map = msg.GetMapName()
+	})
+
 	p.p.RegisterEventHandler(func(e events.PlayerConnect) {
 		p.l.Trace().Str("name", e.Player.Name).Msg("appending player")
 		p.info.Players = append(p.info.Players, e.Player.Name)
