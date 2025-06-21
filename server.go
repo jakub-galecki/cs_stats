@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
-	"net/http"
+	"net"
 
 	"github.com/jakub-galecki/cs_stats/demo"
 	"github.com/jakub-galecki/cs_stats/pb"
 	"github.com/rs/zerolog"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type Server struct {
+	pb.UnimplementedStatsServer
+
 	l     zerolog.Logger
 	stats *stats
 
@@ -58,6 +62,14 @@ func (s *Server) ProcessDemo(ctx context.Context, req *pb.ProcessDemoReq) (*pb.P
 }
 
 func (s *Server) Run(ctx context.Context) error {
-	ss := pb.NewStatsServer(s)
-	return http.ListenAndServe(":8080", ss)
+	listener, err := net.Listen("tcp", ":9999")
+	if err != nil {
+		return err
+	}
+	defer listener.Close()
+
+	gs := grpc.NewServer()
+	pb.RegisterStatsServer(gs, s)
+	reflection.Register(gs)
+	return gs.Serve(listener)
 }

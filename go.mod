@@ -8,8 +8,13 @@ require (
 	github.com/markus-wa/demoinfocs-golang v1.11.0
 	github.com/markus-wa/demoinfocs-golang/v4 v4.3.3
 	github.com/rs/zerolog v1.34.0
-	github.com/twitchtv/twirp v8.1.3+incompatible
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/protobuf v1.36.6
+)
+
+require (
+	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250324211829-b45e905df463 // indirect
 )
 
 require (
@@ -24,5 +29,8 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/oklog/ulid/v2 v2.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/zeebo/errs v1.4.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
+	google.golang.org/grpc v1.73.0
+	storj.io/drpc v0.0.34
 )
