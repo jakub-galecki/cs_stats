@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Stats_ProcessDemo_FullMethodName = "/pb.Stats/ProcessDemo"
+	Stats_ReplayDemo_FullMethodName  = "/pb.Stats/ReplayDemo"
 )
 
 // StatsClient is the client API for Stats service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StatsClient interface {
 	ProcessDemo(ctx context.Context, in *ProcessDemoReq, opts ...grpc.CallOption) (*ProcessDemoResponse, error)
+	ReplayDemo(ctx context.Context, in *ProcessDemoReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Pos], error)
 }
 
 type statsClient struct {
@@ -47,11 +49,31 @@ func (c *statsClient) ProcessDemo(ctx context.Context, in *ProcessDemoReq, opts 
 	return out, nil
 }
 
+func (c *statsClient) ReplayDemo(ctx context.Context, in *ProcessDemoReq, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Pos], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Stats_ServiceDesc.Streams[0], Stats_ReplayDemo_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ProcessDemoReq, Pos]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Stats_ReplayDemoClient = grpc.ServerStreamingClient[Pos]
+
 // StatsServer is the server API for Stats service.
 // All implementations must embed UnimplementedStatsServer
 // for forward compatibility.
 type StatsServer interface {
 	ProcessDemo(context.Context, *ProcessDemoReq) (*ProcessDemoResponse, error)
+	ReplayDemo(*ProcessDemoReq, grpc.ServerStreamingServer[Pos]) error
 	mustEmbedUnimplementedStatsServer()
 }
 
@@ -64,6 +86,9 @@ type UnimplementedStatsServer struct{}
 
 func (UnimplementedStatsServer) ProcessDemo(context.Context, *ProcessDemoReq) (*ProcessDemoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProcessDemo not implemented")
+}
+func (UnimplementedStatsServer) ReplayDemo(*ProcessDemoReq, grpc.ServerStreamingServer[Pos]) error {
+	return status.Errorf(codes.Unimplemented, "method ReplayDemo not implemented")
 }
 func (UnimplementedStatsServer) mustEmbedUnimplementedStatsServer() {}
 func (UnimplementedStatsServer) testEmbeddedByValue()               {}
@@ -104,6 +129,17 @@ func _Stats_ProcessDemo_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Stats_ReplayDemo_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ProcessDemoReq)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(StatsServer).ReplayDemo(m, &grpc.GenericServerStream[ProcessDemoReq, Pos]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Stats_ReplayDemoServer = grpc.ServerStreamingServer[Pos]
+
 // Stats_ServiceDesc is the grpc.ServiceDesc for Stats service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -116,6 +152,12 @@ var Stats_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Stats_ProcessDemo_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ReplayDemo",
+			Handler:       _Stats_ReplayDemo_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "demo.proto",
 }

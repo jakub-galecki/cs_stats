@@ -30,7 +30,7 @@ func NewServer(stats *stats, l zerolog.Logger) *Server {
 }
 
 func (s *Server) ProcessDemo(ctx context.Context, req *pb.ProcessDemoReq) (*pb.ProcessDemoResponse, error) {
-	p, err := demo.NewParser(req.Path, demo.WithPlayer(req.Player), demo.WithLogger(s.l))
+	p, err := demo.NewInfo(req.Path, demo.WithPlayer(req.Player), demo.WithLogger(s.l))
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +59,15 @@ func (s *Server) ProcessDemo(ctx context.Context, req *pb.ProcessDemoReq) (*pb.P
 		s.cache[req.Path] = res
 	}
 	return res, nil
+}
+
+func (s *Server) ReplayDemo(req *pb.ProcessDemoReq, res grpc.ServerStreamingServer[pb.Pos]) error {
+	dem, err := demo.NewParser(req.Path, demo.WithPlayer(req.Player), demo.WithLogger(s.l))
+	if err != nil {
+		return nil
+	}
+
+	return nil
 }
 
 func (s *Server) Run(ctx context.Context) error {

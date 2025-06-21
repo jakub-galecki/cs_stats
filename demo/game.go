@@ -149,6 +149,9 @@ func (gs *GameStats) ToProto() *pb.GameStats {
 }
 
 func (kc *KillCounter) ToProto() *pb.KillCounter {
+	if kc == nil {
+		return nil
+	}
 	return &pb.KillCounter{
 		Count:         int32(kc.Count),
 		HeadshotCount: int32(kc.HeadshotCount),
@@ -158,7 +161,9 @@ func (kc *KillCounter) ToProto() *pb.KillCounter {
 func (k *Kill) ToProto() *pb.Kill {
 	weapons := make(map[string]*pb.KillCounter)
 	for gun, counter := range k.Gun {
-		weapons[gun] = counter.ToProto()
+		if counter != nil {
+			weapons[gun] = counter.ToProto()
+		}
 	}
 
 	return &pb.Kill{

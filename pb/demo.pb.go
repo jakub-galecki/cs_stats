@@ -417,6 +417,58 @@ func (x *ProcessDemoResponse) GetStats() *GameStats {
 	return nil
 }
 
+type Pos struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	X             float64                `protobuf:"fixed64,1,opt,name=x,proto3" json:"x,omitempty"`
+	Y             float64                `protobuf:"fixed64,2,opt,name=y,proto3" json:"y,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Pos) Reset() {
+	*x = Pos{}
+	mi := &file_demo_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Pos) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Pos) ProtoMessage() {}
+
+func (x *Pos) ProtoReflect() protoreflect.Message {
+	mi := &file_demo_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Pos.ProtoReflect.Descriptor instead.
+func (*Pos) Descriptor() ([]byte, []int) {
+	return file_demo_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *Pos) GetX() float64 {
+	if x != nil {
+		return x.X
+	}
+	return 0
+}
+
+func (x *Pos) GetY() float64 {
+	if x != nil {
+		return x.Y
+	}
+	return 0
+}
+
 var File_demo_proto protoreflect.FileDescriptor
 
 const file_demo_proto_rawDesc = "" +
@@ -459,9 +511,14 @@ const file_demo_proto_rawDesc = "" +
 	"\x06player\x18\x01 \x01(\tR\x06player\x12\x10\n" +
 	"\x03map\x18\x02 \x01(\tR\x03map\x12\x18\n" +
 	"\aplayers\x18\x03 \x03(\tR\aplayers\x12#\n" +
-	"\x05stats\x18\x04 \x01(\v2\r.pb.GameStatsR\x05stats2E\n" +
+	"\x05stats\x18\x04 \x01(\v2\r.pb.GameStatsR\x05stats\"!\n" +
+	"\x03Pos\x12\f\n" +
+	"\x01x\x18\x01 \x01(\x01R\x01x\x12\f\n" +
+	"\x01y\x18\x02 \x01(\x01R\x01y2t\n" +
 	"\x05Stats\x12<\n" +
-	"\vProcessDemo\x12\x12.pb.ProcessDemoReq\x1a\x17.pb.ProcessDemoResponse\"\x00B&Z$github.com/jakub-galecki/cs_stats/pbb\x06proto3"
+	"\vProcessDemo\x12\x12.pb.ProcessDemoReq\x1a\x17.pb.ProcessDemoResponse\"\x00\x12-\n" +
+	"\n" +
+	"ReplayDemo\x12\x12.pb.ProcessDemoReq\x1a\a.pb.Pos\"\x000\x01B&Z$github.com/jakub-galecki/cs_stats/pbb\x06proto3"
 
 var (
 	file_demo_proto_rawDescOnce sync.Once
@@ -475,7 +532,7 @@ func file_demo_proto_rawDescGZIP() []byte {
 	return file_demo_proto_rawDescData
 }
 
-var file_demo_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_demo_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_demo_proto_goTypes = []any{
 	(*ProcessDemoReq)(nil),      // 0: pb.ProcessDemoReq
 	(*KillCounter)(nil),         // 1: pb.KillCounter
@@ -484,26 +541,29 @@ var file_demo_proto_goTypes = []any{
 	(*Kill)(nil),                // 4: pb.Kill
 	(*GameStats)(nil),           // 5: pb.GameStats
 	(*ProcessDemoResponse)(nil), // 6: pb.ProcessDemoResponse
-	nil,                         // 7: pb.Kill.WeaponsEntry
-	nil,                         // 8: pb.GameStats.KillsEntry
-	nil,                         // 9: pb.GameStats.FlashesEntry
+	(*Pos)(nil),                 // 7: pb.Pos
+	nil,                         // 8: pb.Kill.WeaponsEntry
+	nil,                         // 9: pb.GameStats.KillsEntry
+	nil,                         // 10: pb.GameStats.FlashesEntry
 }
 var file_demo_proto_depIdxs = []int32{
 	1,  // 0: pb.Kill.overall:type_name -> pb.KillCounter
 	1,  // 1: pb.Kill.terrorists:type_name -> pb.KillCounter
 	1,  // 2: pb.Kill.counterTerrorists:type_name -> pb.KillCounter
-	7,  // 3: pb.Kill.weapons:type_name -> pb.Kill.WeaponsEntry
+	8,  // 3: pb.Kill.weapons:type_name -> pb.Kill.WeaponsEntry
 	3,  // 4: pb.Kill.killPositions:type_name -> pb.Position
-	8,  // 5: pb.GameStats.kills:type_name -> pb.GameStats.KillsEntry
-	9,  // 6: pb.GameStats.flashes:type_name -> pb.GameStats.FlashesEntry
+	9,  // 5: pb.GameStats.kills:type_name -> pb.GameStats.KillsEntry
+	10, // 6: pb.GameStats.flashes:type_name -> pb.GameStats.FlashesEntry
 	5,  // 7: pb.ProcessDemoResponse.stats:type_name -> pb.GameStats
 	1,  // 8: pb.Kill.WeaponsEntry.value:type_name -> pb.KillCounter
 	4,  // 9: pb.GameStats.KillsEntry.value:type_name -> pb.Kill
 	2,  // 10: pb.GameStats.FlashesEntry.value:type_name -> pb.Flash
 	0,  // 11: pb.Stats.ProcessDemo:input_type -> pb.ProcessDemoReq
-	6,  // 12: pb.Stats.ProcessDemo:output_type -> pb.ProcessDemoResponse
-	12, // [12:13] is the sub-list for method output_type
-	11, // [11:12] is the sub-list for method input_type
+	0,  // 12: pb.Stats.ReplayDemo:input_type -> pb.ProcessDemoReq
+	6,  // 13: pb.Stats.ProcessDemo:output_type -> pb.ProcessDemoResponse
+	7,  // 14: pb.Stats.ReplayDemo:output_type -> pb.Pos
+	13, // [13:15] is the sub-list for method output_type
+	11, // [11:13] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name
@@ -520,7 +580,7 @@ func file_demo_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_demo_proto_rawDesc), len(file_demo_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

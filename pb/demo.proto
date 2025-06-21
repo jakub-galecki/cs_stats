@@ -42,7 +42,14 @@ message ProcessDemoResponse {
     GameStats stats = 4;
 }
 
+
+message Pos {
+    double x = 1;
+    double y = 2;    
+}
+
 service Stats {
     rpc ProcessDemo(ProcessDemoReq) returns  (ProcessDemoResponse) {}
+    rpc ReplayDemo(ProcessDemoReq) returns (stream Pos) {}
 }
 

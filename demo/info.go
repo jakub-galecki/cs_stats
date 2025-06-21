@@ -6,6 +6,7 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/msg"
 	d "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 	"github.com/rs/zerolog"
 )
 
@@ -19,9 +20,7 @@ type DemoInfo struct {
 	Game    GameStats
 }
 
-type Parser struct {
-	p d.Parser
-	f *os.File
+type Info struct {
 
 	player string
 
@@ -30,32 +29,29 @@ type Parser struct {
 	l zerolog.Logger
 }
 
-type Opt func(*Parser)
+type Opt func(*Info)
 
 func WithPlayer(player string) Opt {
-	return func(p *Parser) {
+	return func(p *Info) {
 		p.player = player
 	}
 }
 
 func WithLogger(l zerolog.Logger) Opt {
-	return func(p *Parser) {
+	return func(p *Info) {
 		p.l = l
 	}
 }
 
-func NewParser(path string, opts ...Opt) (*Parser, error) {
-	f, err := os.Open(path)
+func NewInfo(path string, opts ...Opt) (*Info, error) {
+	pp := &Info{}
+
+	internal, err := internalParser(path)
 	if err != nil {
 		return nil, err
 	}
 
-	p := d.NewParser(f)
-
-	pp := &Parser{
-		p: p,
-		f: f,
-	}
+	pp/.
 
 	for _, fn := range opts {
 		fn(pp)
@@ -68,10 +64,11 @@ func NewParser(path string, opts ...Opt) (*Parser, error) {
 	return pp, nil
 }
 
-func (p *Parser) register() {
-	p.p.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
-		p.l.Trace().Str("map", msg.GetMapName()).Msg("received map info")
-		p.info.Map = msg.GetMapName()
+func (p *Info) register() {
+	p.p.RegisterNetMessageHandler(func(m *msgs2.CSVCMsg_ServerInfo) {
+		name := m.GetMapName()
+		p.l.Trace().Str("map_name", name).Msg("decoding map name")
+		p.info.Map = name
 	})
 
 	p.p.RegisterEventHandler(func(e events.PlayerConnect) {
@@ -110,7 +107,7 @@ func (p *Parser) register() {
 
 //func getBestAction()
 
-func (p *Parser) Parse() (DemoInfo, error) {
+func (p *Info) Parse() (DemoInfo, error) {
 	defer func() {
 		err := p.p.Close()
 		if err != nil {
@@ -118,10 +115,12 @@ func (p *Parser) Parse() (DemoInfo, error) {
 		}
 	}()
 
-	_, err := p.p.ParseHeader()
+	h, err := p.p.ParseHeader()
 	if err != nil {
 		return ZeroDemoInfo, err
 	}
+
+	p.l.Trace().Any("header", h).Msg("parsed demo header")
 
 	err = p.p.ParseToEnd()
 	if err != nil {
