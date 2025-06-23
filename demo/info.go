@@ -1,13 +1,9 @@
 package demo
 
 import (
-	"os"
-
 	"github.com/markus-wa/demoinfocs-golang/msg"
-	d "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
-	"github.com/rs/zerolog"
 )
 
 var ZeroDemoInfo = DemoInfo{}
@@ -21,26 +17,10 @@ type DemoInfo struct {
 }
 
 type Info struct {
-
-	player string
+	*parser
+	cfg
 
 	info DemoInfo
-
-	l zerolog.Logger
-}
-
-type Opt func(*Info)
-
-func WithPlayer(player string) Opt {
-	return func(p *Info) {
-		p.player = player
-	}
-}
-
-func WithLogger(l zerolog.Logger) Opt {
-	return func(p *Info) {
-		p.l = l
-	}
 }
 
 func NewInfo(path string, opts ...Opt) (*Info, error) {
@@ -51,10 +31,10 @@ func NewInfo(path string, opts ...Opt) (*Info, error) {
 		return nil, err
 	}
 
-	pp/.
+	pp.parser = internal
 
 	for _, fn := range opts {
-		fn(pp)
+		fn(&pp.cfg)
 	}
 
 	pp.register()

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net"
 
 	"github.com/jakub-galecki/cs_stats/demo"
@@ -61,10 +62,28 @@ func (s *Server) ProcessDemo(ctx context.Context, req *pb.ProcessDemoReq) (*pb.P
 	return res, nil
 }
 
+func (s *Server) tickHandler(dst grpc.ServerStreamingServer[pb.Pos]) demo.TickHandler {
+	return func(data any) error {
+		t, ok := data.(demo.Tick)
+		if !ok {
+			return fmt.Errorf("invalid data type")
+		}
+
+		return dst.Send(&pb.Pos{
+			X: t.Pos.X,
+			Y: t.Pos.Y,
+		})
+	}
+}
+
 func (s *Server) ReplayDemo(req *pb.ProcessDemoReq, res grpc.ServerStreamingServer[pb.Pos]) error {
-	dem, err := demo.NewParser(req.Path, demo.WithPlayer(req.Player), demo.WithLogger(s.l))
+	dem, err := demo.NewPlayer(req.Path, s.tickHandler(res), demo.WithPlayer(req.Player), demo.WithLogger(s.l))
 	if err != nil {
-		return nil
+		return err
+	}
+
+	if err = dem.Parse(); err != nil {
+		return err
 	}
 
 	return nil
